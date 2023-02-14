@@ -1,0 +1,95 @@
+package se.lexicon.ms_lecture_springboot_rest_20230206_todo_api.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import se.lexicon.ms_lecture_springboot_rest_20230206_todo_api.model.dto.RoleDto;
+import se.lexicon.ms_lecture_springboot_rest_20230206_todo_api.model.entity.Role;
+import se.lexicon.ms_lecture_springboot_rest_20230206_todo_api.service.RoleService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/role/")
+public class RoleController {
+
+    @Autowired
+    RoleService roleService;
+
+    //step1 -> add @RestController in front of the class Controller
+    //http://localhost:8080/api/v1/role/ (IPAddress : port number)
+    @GetMapping("") // Get is used in readonly mode
+    // in order to publish this method as a web service -> @GetMapping
+    // add the url
+    // modify : public List<Role> getAll(){ -> public ResponseEntity<List<Role>> getAll(){
+    //-> it will convert List<Role> into a Json message
+    // modify return roles -> return ResponseEntity.ok(roles)
+
+    // after creating Dto package, we can modify List<Role> -> List<RoleDto>
+    public ResponseEntity<List<RoleDto>> getAll(){
+        /*List<RoleDto> roles = new ArrayList<>();
+        roles.add(new RoleDto(1, "ADMIN"));
+        roles.add(new RoleDto(2, "USER"));
+         */
+
+        //return ResponseEntity.ok(roleService.getAll()); // ok = http response code 200
+
+        return ResponseEntity.status(HttpStatus.OK).body(roleService.getAll());
+    }
+
+    @GetMapping("{id}") // if we use the same uri -> Postman don't know how to execute
+    // -> add @PathVariable (before the Type of param
+    // and add {id} to uri
+
+    // because /api/v1/role/ it is the same -> we can put this in the beginning adding @RequestMapping("/api/v1/role/")
+    public ResponseEntity<RoleDto> findById(@PathVariable("id") Integer id){
+       return ResponseEntity.ok(roleService.findById(id));
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteById(@PathVariable("id") Integer id){
+        // delete returns Void -> modify the <RoleDto> to <Void>
+        roleService.delete(id);
+        //return ResponseEntity.noContent().build(); //204 == no content (delete)
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("") // -> if you want to attach data to request and send data to back-end
+    //if we create a role -> it will return a RoleDto
+    public ResponseEntity<RoleDto> create(@RequestBody RoleDto roleDto){
+
+        RoleDto createdRoleDto = roleService.create(roleDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRoleDto); // 201 == create
+    }
+
+    @PutMapping("") //update
+    public ResponseEntity<Void> update(@RequestBody RoleDto roleDto){
+        roleService.update(roleDto);
+        return ResponseEntity.noContent().build(); // 204 == no content (update)
+    }
+
+
+
+    // HTTP method types:
+    // -> Get       : readOnlyData , NOT modifying (findAll, findById, etc)
+    // -> Post      : modifying Data (create/persist)
+    // -> Put       : modifying Data (update)
+    // -> Delete    : modifying Data (delete)
+
+
+    //Last but not least, we have to create documentation for URI and ResponseCode,
+    // that we used for each method
+    // -> we can do it using Spring Framework in POM.xml after the last dependency
+    // - but inside dependencies Row58 and reload Maven Changes
+    /**
+      <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-ui</artifactId>
+        <version>1.6.9</version>
+     </dependency>
+     */
+    // then we create a config package in the root to add config implementation
+
+}
