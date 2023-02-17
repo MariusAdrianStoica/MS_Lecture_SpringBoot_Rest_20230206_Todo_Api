@@ -1,5 +1,10 @@
 package se.lexicon.ms_lecture_springboot_rest_20230206_todo_api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +44,11 @@ public class RoleController {
         return ResponseEntity.status(HttpStatus.OK).body(roleService.getAll());
     }
 
+    @Operation(summary = "Get a role by its Id") // to print a description in Swagger
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the Role", content = {@Content}),
+            @ApiResponse(responseCode = "400", description = "Invalid id supplied", content = {@Content})
+    })
     @GetMapping("{id}") // if we use the same uri -> Postman don't know how to execute
     // -> add @PathVariable (before the Type of param
     // and add {id} to uri
@@ -58,6 +68,16 @@ public class RoleController {
 
     @PostMapping("") // -> if you want to attach data to request and send data to back-end
     //if we create a role -> it will return a RoleDto
+    @Operation(summary = "Create a role") // to print a description in Swagger
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Create the Role",
+                    content = {@Content(mediaType = "Application/JSON",
+                            schema = @Schema(name = "Example", implementation = RoleDto.class))}),
+            @ApiResponse(responseCode = "400", description = "Invalid Request Body supplied", content = {@Content})
+    })
+    // -> content = {@Content(mediaType = "Application/JSON" -
+    // -> schema = @Schema(name = "Example", implementation = RoleDto.class))} -
+
     public ResponseEntity<RoleDto> create(@RequestBody RoleDto roleDto){
 
         RoleDto createdRoleDto = roleService.create(roleDto);
