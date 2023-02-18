@@ -49,7 +49,9 @@ public class RoleServiceImpl implements RoleService{
     public RoleDto findById(Integer roleId) {
         if (roleId == null)throw new IllegalArgumentException("roleId was null");
         Optional<Role> optionalRole = roleRepository.findById(roleId);
-        if (optionalRole.isPresent()) {
+        //if (optionalRole.isPresent()) { -> modified in order to handle exception
+        //else  throw new DataNotFoundException("Data not found!");
+        if (!optionalRole.isPresent()) throw new DataNotFoundException("RoleId was not valid");
            // convert the Role in to RoleDto
             Role entity = optionalRole.get();
 
@@ -61,19 +63,15 @@ public class RoleServiceImpl implements RoleService{
             return modelMapper.map( entity,RoleDto.class);
             // but modelMapper was not instantiated - -> we have NullPointerException
             //we will define it as a @Bean in AppConfig
-
-
         }
-        //else  throw new DataNotFoundException("Data not found!");
 
-        return null; // but we can throw DataNotFoundException
-    }
 
     @Override
     public RoleDto create(RoleDto roleDto) {
         if (roleDto == null) throw new IllegalArgumentException("role data was null");
         if (roleDto.getId() != 0)  throw new IllegalArgumentException("role Id should be null or zero");
 
+        //todo: check if the roleDto.getName() already exists
 
         //Role convertedToEntity = new Role( roleDto.getName()); -> comment this in order to use modelMapper
         // we need to create Constructor inside the Role
