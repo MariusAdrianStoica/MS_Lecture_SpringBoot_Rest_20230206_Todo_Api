@@ -8,18 +8,24 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import se.lexicon.ms_lecture_springboot_rest_20230206_todo_api.model.dto.RoleDto;
 import se.lexicon.ms_lecture_springboot_rest_20230206_todo_api.model.entity.Role;
 import se.lexicon.ms_lecture_springboot_rest_20230206_todo_api.service.RoleService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/role/")
+@Validated // if we put @Validated in front of the class, it will work for all class constraints
 public class RoleController {
 
+    //Controller is responsible to control all the requests and make(return) the responses
     @Autowired
     RoleService roleService;
 
@@ -54,7 +60,12 @@ public class RoleController {
     // and add {id} to uri
 
     // because /api/v1/role/ it is the same -> we can put this in the beginning adding @RequestMapping("/api/v1/role/")
-    public ResponseEntity<RoleDto> findById(@PathVariable("id") Integer id){
+
+    //@Validated // @Validated is for parameters -> can be moved in front of the class
+    public ResponseEntity<RoleDto> findById(@PathVariable("id") @Min(value = 1, message = "greater than 1") @Max(10) Integer id){
+        //if we try to find after a letter -> we get error but not captured
+        //-> we can add constraints using @Min and @Max, in order to work, add@Validated
+        //@Min(1) @Max(10) -> we can't find after other numbers except 1-10
        return ResponseEntity.ok(roleService.findById(id));
     }
 
@@ -78,14 +89,19 @@ public class RoleController {
     // -> content = {@Content(mediaType = "Application/JSON" -
     // -> schema = @Schema(name = "Example", implementation = RoleDto.class))} -
 
-    public ResponseEntity<RoleDto> create(@RequestBody RoleDto roleDto){
+    public ResponseEntity<RoleDto> create(@RequestBody @Valid RoleDto roleDto){
+
+        // we need to validate RoleDto, in order to create a Role
+        //-> we can use different types of annotation in RoleDto.class
+        // after using annotations in RoleDto, in order to use these constraints
+        // -> add @Valid after @RequestBody
 
         RoleDto createdRoleDto = roleService.create(roleDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRoleDto); // 201 == create
     }
 
     @PutMapping("") //update
-    public ResponseEntity<Void> update(@RequestBody RoleDto roleDto){
+    public ResponseEntity<Void> update(@RequestBody @Valid RoleDto roleDto){
         roleService.update(roleDto);
         return ResponseEntity.noContent().build(); // 204 == no content (update)
     }
