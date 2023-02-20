@@ -10,6 +10,7 @@ import javax.validation.constraints.Size;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class RoleDto {
     // data transfer object
 
